@@ -3,17 +3,19 @@ const dns = require('dns');
 // Disable SSL certificate verification globally (required both locally and on Vercel due to expired certificates)
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-// Bypass DNS overrides completely when running on Vercel
-if (process.env.VERCEL === '1' || process.env.NOW_BUILD === '1') {
-  module.exports = {};
-  return;
-}
-
 dns.setDefaultResultOrder('ipv4first');
 
-// List of working CloudFront IPs near Indonesia (Singapore POPs)
-const MOVIEBOX_IPS = ['65.8.76.78', '65.8.76.55', '65.8.76.90'];
-const FMOVIES_IPS = ['13.35.163.59', '13.35.163.11', '13.35.163.124', '13.35.163.22'];
+// Detect environment
+const isVercel = process.env.VERCEL === '1' || process.env.NOW_BUILD === '1';
+
+// List of working IPs depending on region (local uses Singapore POPs, Vercel uses Frankfurt/EU POPs to bypass Geo-routing blocks)
+const MOVIEBOX_IPS = isVercel 
+  ? ['8.211.36.159', '8.209.114.78'] 
+  : ['65.8.76.78', '65.8.76.55', '65.8.76.90'];
+
+const FMOVIES_IPS = isVercel 
+  ? ['8.211.36.159', '8.209.114.78'] 
+  : ['13.35.163.59', '13.35.163.11', '13.35.163.124', '13.35.163.22'];
 
 // Pick a random IP from a list
 function getRandomIp(ipList) {
@@ -31,7 +33,7 @@ dns.lookup = function(hostname, options, callback) {
 
   const all = options && options.all;
 
-  if (hostname === 'moviebox.ph') {
+  if (hostname === 'moviebox.ph' || hostname === 'www.moviebox.ph') {
     const ip = getRandomIp(MOVIEBOX_IPS);
     if (all) {
       return callback(null, [{ address: ip, family: 4 }], ip);
@@ -40,7 +42,7 @@ dns.lookup = function(hostname, options, callback) {
     }
   }
 
-  if (hostname === 'fmoviesunblocked.net') {
+  if (hostname === 'fmoviesunblocked.net' || hostname === 'www.fmoviesunblocked.net') {
     const ip = getRandomIp(FMOVIES_IPS);
     if (all) {
       return callback(null, [{ address: ip, family: 4 }], ip);
@@ -60,7 +62,6 @@ dns.lookup = function(hostname, options, callback) {
 
   return originalLookup(hostname, options, callback);
 };
-
 
 // Override net.connect and tls.connect to force IPv4 (family: 4) to fix ENETUNREACH in Node fetch
 const net = require('net');
@@ -82,4 +83,4 @@ tls.connect = function(...args) {
   return originalTlsConnect.apply(this, args);
 };
 
-console.log('[DNS Override] Active for moviebox.ph, fmoviesunblocked.net & h5-api.aoneroom.com (IPv4 Forced)');
+console.log(`[DNS Override] Active for moviebox.ph & fmoviesunblocked.net (${isVercel ? 'Vercel Europe' : 'Local Singapore'} POPs, IPv4 Forced)`);
