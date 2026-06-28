@@ -51,7 +51,7 @@ export default function DetailPage() {
         setRecommendations(json.recommendations || []);
 
         // Process Seasons & Episodes if TV Series
-        if (detail?.resource?.seasons) {
+        if (detail?.resource?.seasons && detail.resource.seasons.length > 0) {
           const seasons = detail.resource.seasons;
           const map = {};
           seasons.forEach((seasonObj) => {
