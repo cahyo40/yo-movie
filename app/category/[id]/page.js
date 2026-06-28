@@ -111,8 +111,9 @@ export default function CategoryPage({ params }) {
 
         .results-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(150px, 170px));
           gap: var(--spacing-lg);
+          justify-content: center;
         }
 
         .skeleton-card-wrapper {
@@ -122,7 +123,7 @@ export default function CategoryPage({ params }) {
         .skeleton-card {
           width: 100%;
           aspect-ratio: 2 / 3;
-          border-radius: 12px;
+          border-radius: 8px;
         }
 
         .load-more-wrapper {

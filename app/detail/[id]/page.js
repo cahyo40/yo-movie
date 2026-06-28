@@ -75,6 +75,15 @@ export default function DetailPage() {
           if (seasons.length > 0) {
             setSelectedSeason(seasons[0].se);
           }
+        } else if (detail?.subject?.subjectType === 2) {
+          // TV Series but resource is null: create fallback Season 1 with 12 episodes
+          const fallbackSeasons = [{ se: 1, maxEp: 12 }];
+          const map = { 1: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] };
+          
+          detail.resource = { seasons: fallbackSeasons };
+          setMediaData({ ...detail });
+          setEpisodesMap(map);
+          setSelectedSeason(1);
         }
       } catch (err) {
         console.error('[Detail] Error loading detail:', err);
