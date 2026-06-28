@@ -9,7 +9,10 @@ export async function GET(request) {
     return Response.json({ error: 'Missing id parameter' }, { status: 400 });
   }
 
-  const apiUrl = 'https://fmoviesunblocked.net';
+  let apiUrl = 'https://fmoviesunblocked.net';
+  if (process.env.VERCEL === '1') {
+    apiUrl = 'https://moviebox.ph';
+  }
   const url = `${apiUrl}/wefeed-h5-bff/web/ranking-list/content?id=${id}&page=${page}&perPage=12`;
 
   try {
