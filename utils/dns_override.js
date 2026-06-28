@@ -3,12 +3,6 @@ const dns = require('dns');
 // Disable SSL certificate verification globally (required both locally and on Vercel due to expired certificates)
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-// Bypass DNS overrides completely when running on Vercel
-if (process.env.VERCEL === '1' || process.env.NOW_BUILD === '1') {
-  module.exports = {};
-  return;
-}
-
 dns.setDefaultResultOrder('ipv4first');
 
 // List of working CloudFront IPs near Indonesia (Singapore POPs)

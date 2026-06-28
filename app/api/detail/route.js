@@ -8,10 +8,7 @@ export async function GET(request) {
     return Response.json({ error: 'Missing id parameter' }, { status: 400 });
   }
 
-  let apiUrl = 'https://fmoviesunblocked.net';
-  if (process.env.VERCEL === '1') {
-    apiUrl = 'https://moviebox.ph';
-  }
+  const apiUrl = 'https://fmoviesunblocked.net';
   const detailUrl = `${apiUrl}/wefeed-h5-bff/web/subject/detail?subjectId=${id}`;
   const recUrl = `${apiUrl}/wefeed-h5-bff/web/subject/detail-rec?subjectId=${id}&page=1&perPage=12`;
 
