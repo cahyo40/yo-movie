@@ -65,9 +65,6 @@ export default function Header() {
             🔍
           </Link>
         )}
-        <div className="profile-avatar" title="Pengguna YoMovie">
-          👑
-        </div>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
