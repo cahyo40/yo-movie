@@ -1,5 +1,8 @@
 const dns = require('dns');
 
+// Disable SSL certificate verification globally (required both locally and on Vercel due to expired certificates)
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 // Bypass DNS overrides completely when running on Vercel
 if (process.env.VERCEL === '1' || process.env.NOW_BUILD === '1') {
   module.exports = {};
@@ -58,8 +61,6 @@ dns.lookup = function(hostname, options, callback) {
   return originalLookup(hostname, options, callback);
 };
 
-// Also set rejection of unauthorized certs globally on server
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 // Override net.connect and tls.connect to force IPv4 (family: 4) to fix ENETUNREACH in Node fetch
 const net = require('net');

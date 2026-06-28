@@ -96,7 +96,7 @@ export default function MovieSlider({ title, movies, categoryId }) {
 
       <style dangerouslySetInnerHTML={{ __html: `
         .slider-container {
-          margin-bottom: var(--spacing-xl);
+          margin-bottom: var(--spacing-xxl);
           position: relative;
         }
 
@@ -161,7 +161,7 @@ export default function MovieSlider({ title, movies, categoryId }) {
         }
 
         .slider-item {
-          flex: 0 0 180px; /* Default size for cards */
+          flex: 0 0 170px; /* Refined uniform size for cards */
           scroll-snap-align: start;
         }
 

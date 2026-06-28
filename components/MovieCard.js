@@ -89,17 +89,19 @@ export default function MovieCard({ movie }) {
           position: relative;
           width: 100%;
           aspect-ratio: 2 / 3;
-          border-radius: 12px;
+          border-radius: 8px;
           overflow: hidden;
           box-shadow: var(--shadow-low);
-          transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+          transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
           background-color: var(--color-surface);
           flex-shrink: 0;
+          border: 1.5px solid transparent;
         }
 
         .card-wrapper:hover .card-poster-container {
-          transform: translateY(-8px) scale(1.1);
+          transform: translateY(-6px) scale(1.06);
           box-shadow: var(--shadow-high), var(--shadow-glow);
+          border-color: var(--color-primary);
         }
 
         .card-poster {
