@@ -162,6 +162,8 @@ export default function MovieSlider({ title, movies, categoryId }) {
 
         .slider-item {
           flex: 0 0 170px; /* Refined uniform size for cards */
+          min-width: 170px;
+          max-width: 170px;
           scroll-snap-align: start;
         }
 
@@ -215,6 +217,8 @@ export default function MovieSlider({ title, movies, categoryId }) {
         @media (max-width: 768px) {
           .slider-item {
             flex: 0 0 150px; /* Smaller card size on mobile */
+            min-width: 150px;
+            max-width: 150px;
           }
           
           .scroll-btn {
@@ -225,6 +229,8 @@ export default function MovieSlider({ title, movies, categoryId }) {
         @media (max-width: 480px) {
           .slider-item {
             flex: 0 0 130px;
+            min-width: 130px;
+            max-width: 130px;
           }
           .slider-track {
             gap: var(--spacing-sm);

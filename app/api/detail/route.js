@@ -8,14 +8,18 @@ export async function GET(request) {
     return Response.json({ error: 'Missing id parameter' }, { status: 400 });
   }
 
-  const detailUrl = `https://fmoviesunblocked.net/wefeed-h5-bff/web/subject/detail?subjectId=${id}`;
-  const recUrl = `https://fmoviesunblocked.net/wefeed-h5-bff/web/subject/detail-rec?subjectId=${id}&page=1&perPage=12`;
+  let apiUrl = 'https://fmoviesunblocked.net';
+  if (process.env.VERCEL === '1') {
+    apiUrl = 'https://moviebox.ph';
+  }
+  const detailUrl = `${apiUrl}/wefeed-h5-bff/web/subject/detail?subjectId=${id}`;
+  const recUrl = `${apiUrl}/wefeed-h5-bff/web/subject/detail-rec?subjectId=${id}&page=1&perPage=12`;
 
   const headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Accept': 'application/json, text/plain, */*',
-    'Origin': 'https://fmoviesunblocked.net',
-    'Referer': 'https://fmoviesunblocked.net/'
+    'Origin': apiUrl,
+    'Referer': apiUrl + '/'
   };
 
   try {

@@ -9,15 +9,19 @@ export async function GET(request) {
     return Response.json({ error: 'Missing id parameter' }, { status: 400 });
   }
 
-  const url = `https://fmoviesunblocked.net/wefeed-h5-bff/web/ranking-list/content?id=${id}&page=${page}&perPage=12`;
+  let apiUrl = 'https://fmoviesunblocked.net';
+  if (process.env.VERCEL === '1') {
+    apiUrl = 'https://moviebox.ph';
+  }
+  const url = `${apiUrl}/wefeed-h5-bff/web/ranking-list/content?id=${id}&page=${page}&perPage=12`;
 
   try {
     const res = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'application/json, text/plain, */*',
-        'Origin': 'https://fmoviesunblocked.net',
-        'Referer': 'https://fmoviesunblocked.net/'
+        'Origin': apiUrl,
+        'Referer': apiUrl + '/'
       },
       next: { revalidate: 3600 } // Cache for 1 hour
     });

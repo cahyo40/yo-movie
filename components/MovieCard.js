@@ -88,7 +88,8 @@ export default function MovieCard({ movie }) {
         .card-poster-container {
           position: relative;
           width: 100%;
-          aspect-ratio: 2 / 3;
+          padding-bottom: 150%; /* Perfect 2:3 aspect ratio */
+          height: 0;
           border-radius: 8px;
           overflow: hidden;
           box-shadow: var(--shadow-low);
@@ -105,6 +106,9 @@ export default function MovieCard({ movie }) {
         }
 
         .card-poster {
+          position: absolute;
+          top: 0;
+          left: 0;
           width: 100%;
           height: 100%;
           object-fit: cover;

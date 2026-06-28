@@ -483,9 +483,13 @@ export default function Home() {
           .hero-actions {
             flex-direction: column;
             gap: var(--spacing-xs);
+            width: 100%;
+            align-items: stretch;
           }
           .btn {
             width: 100%;
+            display: flex;
+            justify-content: center;
           }
           .skeleton-card {
             flex: 0 0 130px;
