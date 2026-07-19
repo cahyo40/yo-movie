@@ -57,45 +57,25 @@ export default function VideoPlayer({
     };
   }, []);
 
-  // Bandwidth-based stream resolver for progressive streams
+  // Get the highest quality stream from the list (default highest quality)
   const getAutoStream = (streamList) => {
     if (!streamList || streamList.length === 0) return null;
 
-    // Check navigator connection speed (Network Information API)
-    const conn = typeof navigator !== 'undefined' ? (navigator.connection || navigator.mozConnection || navigator.webkitConnection) : null;
-    let targetKeyword = '720P'; // default fallback to HD
+    // Sort streams by resolution descending to always default to the highest quality
+    const sorted = [...streamList].sort((a, b) => {
+      const getResValue = (resStr) => {
+        if (!resStr) return 0;
+        const str = resStr.toUpperCase();
+        if (str.includes('8K')) return 8000;
+        if (str.includes('4K') || str.includes('2160')) return 2160;
+        if (str.includes('2K') || str.includes('1440')) return 1440;
+        const match = str.match(/(\d+)/);
+        return match ? parseInt(match[1], 10) : 0;
+      };
+      return getResValue(b.resolutions) - getResValue(a.resolutions);
+    });
 
-    if (conn) {
-      const downlink = conn.downlink || 5; // estimated Mbps
-      const type = conn.effectiveType || '4g';
-
-      if (type === 'slow-2g' || type === '2g' || downlink < 1.5) {
-        targetKeyword = '360P';
-      } else if (type === '3g' || downlink < 4.0) {
-        targetKeyword = '480P';
-      } else if (downlink >= 8.0) {
-        targetKeyword = '1080P';
-      }
-    }
-
-    // Try to find the exact match
-    let match = streamList.find(s => s.resolutions?.toUpperCase().includes(targetKeyword));
-
-    // Fallbacks if target quality is not available
-    if (!match && targetKeyword === '1080P') {
-      match = streamList.find(s => s.resolutions?.toUpperCase().includes('720P'));
-    }
-    if (!match) {
-      match = streamList.find(s => s.resolutions?.toUpperCase().includes('720P'));
-    }
-    if (!match) {
-      match = streamList.find(s => s.resolutions?.toUpperCase().includes('480P'));
-    }
-    if (!match) {
-      match = streamList.find(s => s.resolutions?.toUpperCase().includes('360P'));
-    }
-
-    return match || streamList[0];
+    return sorted[0];
   };
 
   // 1. Set initial stream and subtitle
@@ -108,7 +88,7 @@ export default function VideoPlayer({
         // Find if currentStream is still in streams, if not reset
         const exists = streams.some(s => s.url === currentStream?.url);
         if (!exists) {
-          setCurrentStream(streams[0]);
+          setCurrentStream(getAutoStream(streams));
           setQualityMode('manual');
         }
       }
@@ -252,7 +232,7 @@ export default function VideoPlayer({
         if (qualityMode === 'auto') {
           newStream = getAutoStream(json.streams);
         } else {
-          newStream = json.streams.find(s => s.resolutions === currentStream?.resolutions) || json.streams[0];
+          newStream = json.streams.find(s => s.resolutions === currentStream?.resolutions) || getAutoStream(json.streams);
         }
 
         if (newStream && isMountedRef.current) {
