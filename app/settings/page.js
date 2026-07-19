@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/utils/db';
+import Modal from '@/components/Modal';
 
 export default function SettingsPage() {
   const [stats, setStats] = useState({
@@ -12,6 +13,15 @@ export default function SettingsPage() {
   });
 
   const [importStatus, setImportStatus] = useState({ type: '', message: '' });
+
+  // Modal notification state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'info' });
+
+  const showNotification = (title, message, type = 'info') => {
+    setModalConfig({ title, message, type });
+    setModalOpen(true);
+  };
 
   // Load statistics on mount
   const loadStats = () => {
@@ -49,7 +59,7 @@ export default function SettingsPage() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (e) {
-      alert('Gagal mengekspor data: ' + e.message);
+      showNotification('Ekspor Gagal', 'Gagal mengekspor data: ' + e.message, 'error');
     }
   };
 
@@ -83,6 +93,13 @@ export default function SettingsPage() {
 
   return (
     <div className="settings-container container fadeIn">
+      <Modal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        title={modalConfig.title} 
+        message={modalConfig.message} 
+        type={modalConfig.type} 
+      />
       <h1 className="page-title">Pengaturan Aplikasi</h1>
 
       {/* Info Card */}

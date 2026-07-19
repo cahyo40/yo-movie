@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import MovieSlider from '@/components/MovieSlider';
+import Modal from '@/components/Modal';
 import { db } from '@/utils/db';
 
 const CATEGORIES = [
@@ -19,6 +20,15 @@ export default function Home() {
   const [sections, setSections] = useState({});
   const [loading, setLoading] = useState(true);
   const [continueWatching, setContinueWatching] = useState([]);
+
+  // Modal confirmation state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'info', onConfirm: null });
+
+  const showModal = (title, message, type = 'info', onConfirm = null) => {
+    setModalConfig({ title, message, type, onConfirm });
+    setModalOpen(true);
+  };
 
   useEffect(() => {
     // 1. Load Continue Watching from local DB
@@ -82,6 +92,14 @@ export default function Home() {
 
   return (
     <div className="home-container fadeIn">
+      <Modal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        title={modalConfig.title} 
+        message={modalConfig.message} 
+        type={modalConfig.type} 
+        onConfirm={modalConfig.onConfirm} 
+      />
       {/* 1. Hero Banner */}
       {loading ? (
         <div className="hero-skeleton skeleton"></div>
@@ -123,10 +141,15 @@ export default function Home() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (window.confirm(`Hapus "${item.title}" dari daftar lanjut menonton?`)) {
-                      db.clearResume(item.id);
-                      setContinueWatching(prev => prev.filter(c => c.id !== item.id));
-                    }
+                    showModal(
+                      'Hapus Progres',
+                      `Hapus "${item.title}" dari daftar lanjut menonton?`,
+                      'confirm',
+                      () => {
+                        db.clearResume(item.id);
+                        setContinueWatching(prev => prev.filter(c => c.id !== item.id));
+                      }
+                    );
                   }}
                   title="Hapus dari daftar"
                 >

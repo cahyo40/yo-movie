@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import MovieSlider from '@/components/MovieSlider';
 import VideoPlayer from '@/components/VideoPlayer';
+import Modal from '@/components/Modal';
 import { db } from '@/utils/db';
 
 export default function DetailPage() {
@@ -34,6 +35,15 @@ export default function DetailPage() {
   
   // Resume state
   const [resumeProgress, setResumeProgress] = useState(null);
+
+  // Modal notification state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'info' });
+
+  const showNotification = (title, message, type = 'info') => {
+    setModalConfig({ title, message, type });
+    setModalOpen(true);
+  };
 
   // 1. Fetch details on mount
   useEffect(() => {
@@ -132,7 +142,7 @@ export default function DetailPage() {
       const json = await res.json();
       
       if (!json.streams || json.streams.length === 0) {
-        alert('Maaf, tidak ada tautan video yang tersedia saat ini.');
+        showNotification('Tautan Tidak Tersedia', 'Maaf, tidak ada tautan video yang tersedia saat ini.', 'error');
         return;
       }
 
@@ -160,7 +170,7 @@ export default function DetailPage() {
       setShowPlayer(true);
     } catch (err) {
       console.error('[Detail] Error playing media:', err);
-      alert('Terjadi kesalahan saat memproses streaming video: ' + err.message);
+      showNotification('Kesalahan Pemutar', 'Terjadi kesalahan saat memproses streaming video: ' + err.message, 'error');
     } finally {
       setLoadingLinks(false);
     }
@@ -239,6 +249,13 @@ export default function DetailPage() {
 
   return (
     <div className="detail-container fadeIn">
+      <Modal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        title={modalConfig.title} 
+        message={modalConfig.message} 
+        type={modalConfig.type} 
+      />
       {/* Loading Overlay */}
       {loadingLinks && (
         <div className="loading-overlay glassmorphism">

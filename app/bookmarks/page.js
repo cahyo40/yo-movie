@@ -3,11 +3,21 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/utils/db';
 import MovieCard from '@/components/MovieCard';
+import Modal from '@/components/Modal';
 
 export default function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [activeTab, setActiveTab] = useState('Semua');
+
+  // Modal notification state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'info', onConfirm: null });
+
+  const showModal = (title, message, type = 'info', onConfirm = null) => {
+    setModalConfig({ title, message, type, onConfirm });
+    setModalOpen(true);
+  };
 
   // Load bookmarks on mount
   useEffect(() => {
@@ -18,16 +28,21 @@ export default function BookmarksPage() {
 
   const handleDeleteCategory = (catToDelete) => {
     if (catToDelete === 'Semua' || catToDelete === 'Favorit' || catToDelete === 'Tonton Nanti') {
-      alert('Kategori bawaan tidak dapat dihapus.');
+      showModal('Peringatan', 'Kategori bawaan tidak dapat dihapus.', 'error');
       return;
     }
 
-    if (confirm(`Apakah Anda yakin ingin menghapus kategori "${catToDelete}"? Semua film di dalamnya juga akan terhapus.`)) {
-      const data = db.removeCategory(catToDelete);
-      setBookmarks(data.bookmarks);
-      setCategories(['Semua', ...data.categories]);
-      setActiveTab('Semua');
-    }
+    showModal(
+      'Hapus Kategori',
+      `Apakah Anda yakin ingin menghapus kategori "${catToDelete}"? Semua film di dalamnya juga akan terhapus.`,
+      'confirm',
+      () => {
+        const data = db.removeCategory(catToDelete);
+        setBookmarks(data.bookmarks);
+        setCategories(['Semua', ...data.categories]);
+        setActiveTab('Semua');
+      }
+    );
   };
 
   // Filter bookmarks based on active tab
@@ -37,6 +52,14 @@ export default function BookmarksPage() {
 
   return (
     <div className="bookmarks-container container fadeIn">
+      <Modal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        title={modalConfig.title} 
+        message={modalConfig.message} 
+        type={modalConfig.type} 
+        onConfirm={modalConfig.onConfirm} 
+      />
       <h1 className="page-title">Koleksi Bookmark</h1>
 
       {/* Category Tabs */}

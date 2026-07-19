@@ -3,9 +3,19 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/utils/db';
 import MovieCard from '@/components/MovieCard';
+import Modal from '@/components/Modal';
 
 export default function HistoryPage() {
   const [history, setHistory] = useState([]);
+
+  // Modal confirmation state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'info', onConfirm: null });
+
+  const showModal = (title, message, type = 'info', onConfirm = null) => {
+    setModalConfig({ title, message, type, onConfirm });
+    setModalOpen(true);
+  };
 
   useEffect(() => {
     setHistory(db.getHistory());
@@ -17,10 +27,15 @@ export default function HistoryPage() {
   };
 
   const handleClearAll = () => {
-    if (confirm('Apakah Anda yakin ingin menghapus seluruh riwayat menonton? Tindakan ini tidak dapat dibatalkan.')) {
-      const updated = db.clearHistory();
-      setHistory(updated);
-    }
+    showModal(
+      'Hapus Riwayat',
+      'Apakah Anda yakin ingin menghapus seluruh riwayat menonton? Tindakan ini tidak dapat dibatalkan.',
+      'confirm',
+      () => {
+        const updated = db.clearHistory();
+        setHistory(updated);
+      }
+    );
   };
 
   // Helper to format date
@@ -37,6 +52,14 @@ export default function HistoryPage() {
 
   return (
     <div className="history-container container fadeIn">
+      <Modal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        title={modalConfig.title} 
+        message={modalConfig.message} 
+        type={modalConfig.type} 
+        onConfirm={modalConfig.onConfirm} 
+      />
       <div className="history-header">
         <h1 className="page-title">Riwayat Menonton</h1>
         {history.length > 0 && (
