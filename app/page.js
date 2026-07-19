@@ -140,7 +140,7 @@ export default function Home() {
                   <div className="continue-info">
                     <h4 className="continue-title" title={item.title}>{item.title}</h4>
                     <p className="continue-sub">
-                      {item.type === 'TvSeries' || item.season > 0 ? `S${item.season} E${item.episode}` : 'Film'}
+                      {item.type === 'TvSeries' || item.season > 0 ? `Season ${item.season} • Episode ${item.episode}` : 'Film'}
                     </p>
                     <div className="continue-progress-bg">
                       <div className="continue-progress-bar" style={{ width: `${item.percentage}%` }}></div>

@@ -51,32 +51,42 @@ export default function HistoryPage() {
 
       {history.length > 0 ? (
         <div className="results-grid">
-          {history.map((item) => (
-            <div className="history-card-container" key={item.id}>
-              {/* Card info */}
-              <div className="history-card-main">
-                <MovieCard 
-                  movie={{
-                    subjectId: item.id,
-                    title: item.title,
-                    cover: item.cover,
-                    subjectType: item.type === 'TvSeries' ? 2 : 1,
-                    detailPath: item.detailPath
-                  }} 
-                />
+          {history.map((item) => {
+            const progress = db.getResume(item.id);
+            const showSub = progress && (item.type === 'TvSeries' || progress.season > 0);
+
+            return (
+              <div className="history-card-container" key={item.id}>
+                {/* Card info */}
+                <div className="history-card-main">
+                  <MovieCard 
+                    movie={{
+                      subjectId: item.id,
+                      title: item.title,
+                      cover: item.cover,
+                      subjectType: item.type === 'TvSeries' ? 2 : 1,
+                      detailPath: item.detailPath
+                    }} 
+                  />
+                </div>
+                <div className="history-card-footer">
+                  <div className="history-meta-wrapper">
+                    <p className="history-date">{formatDate(item.timestamp)}</p>
+                    {showSub && (
+                      <p className="history-ep-info">Season {progress.season} • Episode {progress.episode}</p>
+                    )}
+                  </div>
+                  <button 
+                    className="remove-item-btn"
+                    onClick={() => handleRemoveItem(item.id)}
+                    title="Hapus dari Riwayat"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
-              <div className="history-card-footer">
-                <p className="history-date">{formatDate(item.timestamp)}</p>
-                <button 
-                  className="remove-item-btn"
-                  onClick={() => handleRemoveItem(item.id)}
-                  title="Hapus dari Riwayat"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="empty-state">
@@ -152,6 +162,20 @@ export default function HistoryPage() {
           font-size: 10px;
           color: var(--color-text-muted);
           font-weight: 500;
+          margin-bottom: 2px;
+        }
+
+        .history-meta-wrapper {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1px;
+        }
+
+        .history-ep-info {
+          font-size: 11px;
+          color: var(--color-primary);
+          font-weight: 600;
         }
 
         .remove-item-btn {

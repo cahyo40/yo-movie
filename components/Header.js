@@ -28,7 +28,6 @@ export default function Header() {
 
   const navItems = [
     { name: 'Beranda', path: '/' },
-    { name: 'Cari', path: '/search' },
     { name: 'Bookmark', path: '/bookmarks' },
     { name: 'Riwayat', path: '/history' },
     { name: 'Pengaturan', path: '/settings' }

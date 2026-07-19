@@ -33,10 +33,19 @@ export default function VideoPlayer({
   const [fullscreen, setFullscreen] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
   const [errorCount, setErrorCount] = useState(0);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
+  const [isBuffering, setIsBuffering] = useState(false);
   
   const controlsTimeoutRef = useRef(null);
   const lastSavedTimeRef = useRef(0);
   const isMountedRef = useRef(true);
+
+  // Synchronize playback speed with video tag
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = playbackSpeed;
+    }
+  }, [playbackSpeed, currentStream, loading]);
 
   // Toggle player-open body class for full screen layout and prevent memory leaks
   useEffect(() => {
@@ -151,8 +160,12 @@ export default function VideoPlayer({
       };
     } else if (Hls.isSupported()) {
       const hls = new Hls({
-        maxMaxBufferLength: 30, // 30 seconds max buffer
-        enableWorker: true
+        maxMaxBufferLength: 15,
+        maxBufferSize: 10 * 1024 * 1024, // 10MB max buffer size
+        maxBufferLength: 5, // only buffer 5s initially to start faster
+        lowLatencyMode: true,
+        enableWorker: true,
+        abrEwmaDefaultEstimate: 500000 // default to lower bitrate for instant start
       });
       hlsRef.current = hls;
       hls.loadSource(proxiedUrl);
@@ -506,10 +519,10 @@ export default function VideoPlayer({
       {toastMsg && <div className="player-toast glassmorphism">{toastMsg}</div>}
 
       {/* Loading Spinner */}
-      {loading && (
+      {(loading || isBuffering) && (
         <div className="player-loader-container">
           <div className="player-spinner"></div>
-          <p>Memuat video...</p>
+          <p>{isBuffering ? 'Buffering...' : 'Memuat video...'}</p>
         </div>
       )}
 
@@ -520,6 +533,9 @@ export default function VideoPlayer({
         onTimeUpdate={handleTimeUpdate}
         onPause={handlePause}
         onPlay={handlePlay}
+        onWaiting={() => setIsBuffering(true)}
+        onPlaying={() => setIsBuffering(false)}
+        onSeeked={() => setIsBuffering(false)}
         onError={handleNativeVideoError}
         onClick={(e) => {
           e.stopPropagation();
@@ -612,6 +628,23 @@ export default function VideoPlayer({
           </div>
 
           <div className="right-controls">
+            {/* Speed Selector */}
+            <div className="selector-container">
+              <span className="selector-label">Kecepatan</span>
+              <select
+                value={playbackSpeed}
+                onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
+                className="player-select"
+              >
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1">Normal</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+              </select>
+            </div>
+
             {/* Subtitle Selector */}
             {captions && captions.length > 0 && (
               <div className="selector-container">

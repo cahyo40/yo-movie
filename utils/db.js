@@ -159,6 +159,17 @@ export const db = {
 
   saveResume(id, { season, episode, time, duration, title, cover, type, detailPath }) {
     const list = this.getResumeList();
+    const existing = list[id] || {};
+    
+    // Accumulate all watched episodes
+    const watchedEpisodes = existing.watchedEpisodes || [];
+    if (season > 0 && episode > 0) {
+      const epKey = `s${season}_e${episode}`;
+      if (!watchedEpisodes.includes(epKey)) {
+        watchedEpisodes.push(epKey);
+      }
+    }
+
     list[id] = {
       season: season || 0,
       episode: episode || 0,
@@ -169,6 +180,7 @@ export const db = {
       cover,
       type,
       detailPath,
+      watchedEpisodes,
       updatedAt: Date.now()
     };
     safeWrite(KEYS.RESUME, list);

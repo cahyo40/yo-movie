@@ -341,43 +341,61 @@ export default function DetailPage() {
 
               {/* Action Buttons */}
               <div className="detail-actions">
-                {isTv ? (
+                {resumeProgress ? (
+                  <>
+                    <button 
+                      className="btn btn-primary" 
+                      onClick={() => {
+                        if (isTv) {
+                          playMedia(resumeProgress.season || 1, resumeProgress.episode || 1);
+                        } else {
+                          playMedia(0, 0);
+                        }
+                      }}
+                    >
+                      ▶ Lanjut Tonton {isTv ? `(S${resumeProgress.season} Ep${resumeProgress.episode} - ${Math.round(resumeProgress.percentage)}%)` : `(${Math.round(resumeProgress.percentage)}%)`}
+                    </button>
+                    <button 
+                      className="btn btn-secondary glassmorphism" 
+                      onClick={() => {
+                        db.clearResume(id);
+                        if (isTv) {
+                          const seasons = mediaData.resource?.seasons || [];
+                          if (seasons.length > 0) {
+                            const s = seasons[0].se;
+                            const eps = episodesMap[s] || [1];
+                            playMedia(s, eps[0]);
+                          } else {
+                            playMedia(1, 1);
+                          }
+                        } else {
+                          playMedia(0, 0);
+                        }
+                      }}
+                    >
+                      🔄 Putar Ulang
+                    </button>
+                  </>
+                ) : (
                   <button 
-                    className="btn btn-primary"
+                    className="btn btn-primary" 
                     onClick={() => {
-                      // Play first episode of first season
-                      const seasons = mediaData.resource?.seasons || [];
-                      if (seasons.length > 0) {
-                        const s = seasons[0].se;
-                        const eps = episodesMap[s] || [1];
-                        playMedia(s, eps[0]);
+                      if (isTv) {
+                        const seasons = mediaData.resource?.seasons || [];
+                        if (seasons.length > 0) {
+                          const s = seasons[0].se;
+                          const eps = episodesMap[s] || [1];
+                          playMedia(s, eps[0]);
+                        } else {
+                          playMedia(1, 1);
+                        }
                       } else {
-                        playMedia(1, 1);
+                        playMedia(0, 0);
                       }
                     }}
                   >
-                    ▶ Putar Serial
+                    {isTv ? '▶ Putar Serial' : '▶ Putar Sekarang'}
                   </button>
-                ) : (
-                  <>
-                    {resumeProgress ? (
-                      <>
-                        <button className="btn btn-primary" onClick={() => playMedia(0, 0)}>
-                          ▶ Lanjut Tonton ({Math.round(resumeProgress.percentage)}%)
-                        </button>
-                        <button className="btn btn-secondary glassmorphism" onClick={() => {
-                          db.clearResume(id);
-                          playMedia(0, 0);
-                        }}>
-                          🔄 Putar Ulang
-                        </button>
-                      </>
-                    ) : (
-                      <button className="btn btn-primary" onClick={() => playMedia(0, 0)}>
-                        ▶ Putar Sekarang
-                      </button>
-                    )}
-                  </>
                 )}
 
                 <button 
@@ -436,21 +454,23 @@ export default function DetailPage() {
           {selectedSeason && episodesMap[selectedSeason] && (
             <div className="episodes-grid">
               {episodesMap[selectedSeason].map((ep) => {
-                // Find if there is resume progress for this episode
-                const epKey = `${id}_s${selectedSeason}_e${ep}`; // custom composite progress key or check sub-progress
-                const resumeList = db.getResumeList();
-                const epProgress = Object.values(resumeList).find(
-                  r => r.title === subject.title && r.season === selectedSeason && r.episode === ep
-                );
+                const progress = db.getResume(id);
+                const isCurrentlyPlaying = progress && progress.season === selectedSeason && progress.episode === ep;
+                const epProgress = isCurrentlyPlaying ? progress : null;
+                const isWatched = progress?.watchedEpisodes?.includes(`s${selectedSeason}_e${ep}`);
 
                 return (
                   <button 
                     key={ep} 
-                    className="episode-card glassmorphism"
+                    className={`episode-card glassmorphism ${isWatched ? 'watched' : ''}`}
                     onClick={() => playMedia(selectedSeason, ep)}
                   >
                     <span className="ep-num">Eps {ep}</span>
-                    <span className="ep-play-icon">▶</span>
+                    {isWatched ? (
+                      <span className="ep-watched-badge" title="Telah ditonton">✓ Dilihat</span>
+                    ) : (
+                      <span className="ep-play-icon">▶</span>
+                    )}
                     {epProgress && epProgress.percentage > 0 && (
                       <div className="ep-progress-container">
                         <div className="ep-progress-bar" style={{ width: `${epProgress.percentage}%` }}></div>
@@ -810,6 +830,29 @@ export default function DetailPage() {
         .ep-progress-bar {
           height: 100%;
           background-color: var(--color-primary);
+        }
+
+        .episode-card.watched {
+          border-color: rgba(223, 178, 79, 0.4);
+          background-color: rgba(223, 178, 79, 0.08);
+          color: var(--color-primary);
+        }
+
+        .episode-card.watched:hover {
+          background-color: var(--color-primary);
+          border-color: var(--color-primary);
+          color: #000000;
+        }
+
+        .ep-watched-badge {
+          font-size: 11px;
+          margin-top: 4px;
+          color: var(--color-primary);
+          font-weight: 500;
+        }
+
+        .episode-card.watched:hover .ep-watched-badge {
+          color: #000000;
         }
 
         /* Loading link overlay */
