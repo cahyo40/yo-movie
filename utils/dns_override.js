@@ -8,14 +8,9 @@ dns.setDefaultResultOrder('ipv4first');
 // Detect environment
 const isVercel = process.env.VERCEL === '1' || process.env.NOW_BUILD === '1';
 
-// List of working IPs depending on region (local uses Singapore POPs, Vercel uses Frankfurt/EU POPs to bypass Geo-routing blocks)
-const MOVIEBOX_IPS = isVercel 
-  ? ['8.211.36.159', '8.209.114.78'] 
-  : ['65.8.76.78', '65.8.76.55', '65.8.76.90'];
-
-const FMOVIES_IPS = isVercel 
-  ? ['8.211.36.159', '8.209.114.78'] 
-  : ['13.35.163.59', '13.35.163.11', '13.35.163.124', '13.35.163.22'];
+// List of working IPs (Singapore POPs to bypass Geo-routing blocks and CloudFront WAF limits on Vercel)
+const MOVIEBOX_IPS = ['65.8.76.78', '65.8.76.55', '65.8.76.90'];
+const FMOVIES_IPS = ['13.35.163.59', '13.35.163.11', '13.35.163.124', '13.35.163.22'];
 
 // Pick a random IP from a list
 function getRandomIp(ipList) {
@@ -43,6 +38,15 @@ dns.lookup = function(hostname, options, callback) {
   }
 
   if (hostname === 'fmoviesunblocked.net' || hostname === 'www.fmoviesunblocked.net') {
+    const ip = getRandomIp(FMOVIES_IPS);
+    if (all) {
+      return callback(null, [{ address: ip, family: 4 }], ip);
+    } else {
+      return callback(null, ip, 4);
+    }
+  }
+
+  if (hostname === 'netfilm.world' || hostname === 'www.netfilm.world') {
     const ip = getRandomIp(FMOVIES_IPS);
     if (all) {
       return callback(null, [{ address: ip, family: 4 }], ip);
