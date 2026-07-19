@@ -1,41 +1,7 @@
 import '@/utils/dns_override';
 
-// Cache the auth token for reuse (valid for ~90 days)
-let cachedToken = null;
-let tokenExpiry = 0;
-
-async function getAuthToken() {
-  // Reuse cached token if still valid (refresh every 30 minutes to be safe)
-  if (cachedToken && Date.now() < tokenExpiry) {
-    return cachedToken;
-  }
-
-  try {
-    const res = await fetch('https://h5-api.aoneroom.com/wefeed-h5api-bff/country-code', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Origin': 'https://netfilm.world',
-        'Referer': 'https://netfilm.world/',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-      }
-    });
-
-    const xUser = res.headers.get('x-user');
-    if (xUser) {
-      const userData = JSON.parse(xUser);
-      if (userData.token) {
-        cachedToken = userData.token;
-        tokenExpiry = Date.now() + 30 * 60 * 1000; // 30 minutes
-        return cachedToken;
-      }
-    }
-  } catch (err) {
-    console.error('[Play API] Failed to obtain auth token:', err);
-  }
-
-  return null;
-}
+// Use the authorized token from Adimoviebox.kt (Valid until July 2026)
+const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjY1NDQ3MzA2NDM5NjQ1MTYyMzIsImF0cCI6MywiZXh0IjoiMTc4MjUzNTQwMiIsImV4cCI6MTc5MDMxMTQwMiwiaWF0IjoxNzgyNTM1MTAyfQ.d2WpLFeF0erMdSlaaM1RMgnpyB4j1R1s2xVcY6a2Ut8";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -49,10 +15,7 @@ export async function GET(request) {
   }
 
   try {
-    const token = await getAuthToken();
-    if (!token) {
-      return Response.json({ error: 'Failed to get API auth token' }, { status: 500 });
-    }
+    const token = bearerToken;
 
     const apiUrl = 'https://netfilm.world';
     const playUrl = `${apiUrl}/wefeed-h5api-bff/subject/play?subjectId=${id}&se=${season}&ep=${episode}&detailPath=${detailPath}`;
