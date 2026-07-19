@@ -51,15 +51,6 @@ dns.lookup = function(hostname, options, callback) {
     }
   }
 
-  if (hostname === 'netfilm.world' || hostname === 'www.netfilm.world') {
-    const ip = getRandomIp(FMOVIES_IPS);
-    if (all) {
-      return callback(null, [{ address: ip, family: 4 }], ip);
-    } else {
-      return callback(null, ip, 4);
-    }
-  }
-
   if (hostname === 'h5-api.aoneroom.com') {
     const ip = '8.209.77.27';
     if (all) {
