@@ -88,3 +88,7 @@ tls.connect = function(...args) {
 };
 
 console.log(`[DNS Override] Active for moviebox.ph & fmoviesunblocked.net (${isVercel ? 'Vercel Europe' : 'Local Singapore'} POPs, IPv4 Forced)`);
+
+export function initDnsOverride() {
+  return true;
+}

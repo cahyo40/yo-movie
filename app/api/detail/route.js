@@ -1,4 +1,5 @@
-import '@/utils/dns_override';
+import { initDnsOverride } from '@/utils/dns_override';
+initDnsOverride();
 
 // Cache the auth token for reuse (valid for ~90 days)
 let cachedToken = null;

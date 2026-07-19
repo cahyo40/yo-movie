@@ -1,4 +1,5 @@
-import '@/utils/dns_override';
+import { initDnsOverride } from '@/utils/dns_override';
+initDnsOverride();
 
 // Use the authorized token from Adimoviebox.kt (Valid until July 2026)
 const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjY1NDQ3MzA2NDM5NjQ1MTYyMzIsImF0cCI6MywiZXh0IjoiMTc4MjUzNTQwMiIsImV4cCI6MTc5MDMxMTQwMiwiaWF0IjoxNzgyNTM1MTAyfQ.d2WpLFeF0erMdSlaaM1RMgnpyB4j1R1s2xVcY6a2Ut8";

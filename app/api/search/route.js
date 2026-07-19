@@ -1,4 +1,5 @@
-import '@/utils/dns_override';
+import { initDnsOverride } from '@/utils/dns_override';
+initDnsOverride();
 
 // Cache the auth token for reuse (valid for ~90 days)
 let cachedToken = null;
@@ -15,8 +16,8 @@ async function getAuthToken() {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'Origin': 'https://fmoviesunblocked.net',
-        'Referer': 'https://fmoviesunblocked.net/',
+        'Origin': 'https://netfilm.world',
+        'Referer': 'https://netfilm.world/',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       }
     });
@@ -59,8 +60,8 @@ export async function GET(request) {
         'Authorization': `Bearer ${token}`,
         'X-Client-Info': JSON.stringify({ timezone: 'Asia/Jakarta' }),
         'X-Request-Lang': 'en',
-        'Origin': 'https://fmoviesunblocked.net',
-        'Referer': 'https://fmoviesunblocked.net/',
+        'Origin': 'https://netfilm.world',
+        'Referer': 'https://netfilm.world/',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       },
       body: JSON.stringify({
@@ -85,8 +86,8 @@ export async function GET(request) {
             'Authorization': `Bearer ${retryToken}`,
             'X-Client-Info': JSON.stringify({ timezone: 'Asia/Jakarta' }),
             'X-Request-Lang': 'en',
-            'Origin': 'https://fmoviesunblocked.net',
-            'Referer': 'https://fmoviesunblocked.net/'
+            'Origin': 'https://netfilm.world',
+            'Referer': 'https://netfilm.world/'
           },
           body: JSON.stringify({
             keyword: q,
