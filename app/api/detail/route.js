@@ -60,24 +60,38 @@ export async function GET(request) {
       'Referer': 'https://moviebox.ph/'
     };
 
-    // Try detailPath lookup first
-    const detailPathUrl = `https://h5-api.aoneroom.com/wefeed-h5api-bff/detail?detailPath=${id}`;
-    let detailRes = await fetch(detailPathUrl, { headers, cache: 'no-store' });
+    const isNumeric = /^\d+$/.test(id);
     let detailData = null;
+    let detailRes = null;
 
-    if (detailRes.ok) {
-      const temp = await detailRes.json();
-      if (temp?.data?.subject) {
-        detailData = temp;
-      }
-    }
-
-    // Fallback to subjectId detail lookup if detailPath lookup failed or didn't return data
-    if (!detailData) {
-      const subjectIdUrl = `https://h5-api.aoneroom.com/wefeed-h5api-bff/subject/detail?subjectId=${id}`;
+    if (isNumeric) {
+      // Lookup by subjectId
+      const subjectIdUrl = `https://h5-api.aoneroom.com/wefeed-h5api-bff/detail?subjectId=${id}`;
       detailRes = await fetch(subjectIdUrl, { headers, cache: 'no-store' });
       if (detailRes.ok) {
         detailData = await detailRes.json();
+      }
+    } else {
+      // Lookup by detailPath
+      const detailPathUrl = `https://h5-api.aoneroom.com/wefeed-h5api-bff/detail?detailPath=${id}`;
+      detailRes = await fetch(detailPathUrl, { headers, cache: 'no-store' });
+      if (detailRes.ok) {
+        detailData = await detailRes.json();
+      }
+    }
+
+    // Fallback try the other one if failed
+    if (!detailData || !detailData.data?.subject) {
+      const fallbackUrl = isNumeric
+        ? `https://h5-api.aoneroom.com/wefeed-h5api-bff/detail?detailPath=${id}`
+        : `https://h5-api.aoneroom.com/wefeed-h5api-bff/detail?subjectId=${id}`;
+      
+      detailRes = await fetch(fallbackUrl, { headers, cache: 'no-store' });
+      if (detailRes.ok) {
+        const temp = await detailRes.json();
+        if (temp?.data?.subject) {
+          detailData = temp;
+        }
       }
     }
 
